@@ -3,3 +3,6 @@ packages:
 resolver: lts-5.16
 docker:
   enable: false
+extra-deps:
+  - servant-0.7.1
+  - servant-server-0.7.1

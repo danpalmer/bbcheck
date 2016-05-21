@@ -17,7 +17,7 @@ import Network.Wai                    (Application)
 import Network.Wai                          (Middleware)
 import Network.Wai.Middleware.RequestLogger (logStdoutDev, logStdout)
 import Control.Monad.Reader           (runReaderT)
-import Control.Monad.Trans.Either     (EitherT)
+import Control.Monad.Except           (ExceptT)
 import Data.Configurator
 import Data.Configurator.Types (Config)
 
@@ -39,17 +39,17 @@ siteServer :: SiteContext -> Application
 siteServer ctx = serve serverAPI (readerServer ctx)
 
 readerServer :: SiteContext -> Server ServerAPI
-readerServer ctx = enter (readerToEither ctx) serviceAPIHandler
+readerServer ctx = enter (readerToExcept ctx) serviceAPIHandler
 
-readerToEither :: SiteContext -> AppM :~> EitherT ServantErr IO
-readerToEither ctx = Nat $ \x -> runReaderT x ctx
+readerToExcept :: SiteContext -> AppM :~> ExceptT ServantErr IO
+readerToExcept ctx = Nat $ \x -> runReaderT x ctx
 
 ---
 
 makeLogger :: Config -> IO Middleware
-makeLogger config = do
-    enabled <- lookupDefault True config "logging.enabled"
-    verbose <- lookupDefault True config "logging.verbose"
+makeLogger cfg = do
+    enabled <- lookupDefault True cfg "logging.enabled"
+    verbose <- lookupDefault True cfg "logging.verbose"
 
     if enabled then
         if verbose then
@@ -60,7 +60,5 @@ makeLogger config = do
         return id
 
 contextForConfig :: Config -> IO (SiteContext)
-contextForConfig config = do
-    return SiteContext {
-            config = config
-        }
+contextForConfig cfg = do
+    return SiteContext {config = cfg}
