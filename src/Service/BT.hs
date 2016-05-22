@@ -1,9 +1,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Service.BT where
+module Service.BT (
+      getInternetOptionsForPostcode
+) where
 
-import Safe
+import Safe (headMay)
 import Network.Wreq
 import Control.Lens
 import Data.Text (pack)
@@ -59,8 +61,8 @@ data BTInternetOption = BTInternetOption {
 $(deriveJSON defaultOptions{ fieldLabelModifier = drop 1 } ''BTInternetOption)
 
 data BTInternetOptionsResponse = BTInternetOptionsResponse {
-      exchangeName :: String
-    , serviceLineTypes :: [BTInternetOption]
+      serviceLineTypes :: [BTInternetOption]
+      --exchangeName :: String
 }
 
 $(deriveJSON defaultOptions ''BTInternetOptionsResponse)
