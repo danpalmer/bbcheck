@@ -6,4 +6,6 @@ docker:
 extra-deps:
 - servant-0.7.1
 - servant-server-0.7.1
+- taggy-0.2.0
+- taggy-lens-0.1.2
 resolver: lts-5.16
