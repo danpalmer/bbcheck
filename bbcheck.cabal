@@ -38,6 +38,10 @@ executable bbcheck
                      , lens-aeson
                      , split
                      , safe
+                     , scalpel
+                     , taggy
+                     , taggy-lens
+                     , regex-posix
   default-language:    Haskell2010
 
 test-suite bbcheck-test
