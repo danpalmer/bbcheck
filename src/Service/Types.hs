@@ -20,7 +20,14 @@ data Provider = OpenReach | VirginMedia | Hyperoptic
 data ServiceType = DSL | FTTC | FTTH
     deriving (Show, Eq)
 
-kilo = 1.0e3 :: Double
-mega = 1.0e6 :: Double
-giga = 1.0e9 :: Double
-one = 1.0 :: Double
+kilo :: Double
+kilo = 1.0e3
+
+mega :: Double
+mega = 1.0e6
+
+giga :: Double
+giga = 1.0e9
+
+one :: Double
+one = 1.0
