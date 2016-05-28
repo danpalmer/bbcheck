@@ -25,13 +25,6 @@ type ServiceAPI = "lookup" :> ReqBody '[JSON] Query :> Post '[JSON] LookupResult
 
 --- Model
 
-data Query = Query {
-      postcode :: String
-    , address :: String
-} deriving (Eq, Show, Generic)
-
-instance FromJSON Query
-
 data LookupError = LookupError {
       provider :: Provider
     , message :: String
@@ -58,14 +51,14 @@ lookupHandler query = do
     let errors = formatErrors responses
     return $ LookupResult {options = results, errors = errors}
         where
-            serviceLookups :: [(Provider, String -> String -> IO (Either String [InternetOption]))]
-            serviceLookups = [ (VirginMedia, VirginMediaUtils.getInternetOptionsForPostcode)
-                             , (OpenReach, BTUtils.getInternetOptionsForPostcode)
+            serviceLookups :: [(Provider, Query -> IO (Either String [InternetOption]))]
+            serviceLookups = [ (VirginMedia, VirginMediaUtils.getInternetOptions)
+                             , (OpenReach, BTUtils.getInternetOptions)
                              ]
 
             serviceResponses :: IO [(Provider, Either String [InternetOption])]
             serviceResponses = flip mapM serviceLookups $ \(p, fn) -> do
-                optionOrError <- fn (postcode query) (address query)
+                optionOrError <- fn query
                 return (p, optionOrError)
 
             formatErrors :: [(Provider, Either String [InternetOption])] -> [LookupError]
