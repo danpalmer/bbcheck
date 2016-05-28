@@ -15,6 +15,12 @@ executable bbcheck
   hs-source-dirs:      src
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall
+  other-modules:       Server
+                       Service.Api
+                       Service.BT
+                       Service.Types
+                       Service.VirginMedia
+                       Types
   build-depends:       base
                      , text
                      , bytestring
