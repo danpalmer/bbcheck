@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Service.BT (
-      getInternetOptionsForPostcode
+      getInternetOptions
 ) where
 
 import Safe (headMay)
@@ -10,7 +10,8 @@ import Network.Wreq
 import Control.Lens
 import Data.Text (pack)
 import Data.Aeson.TH
-import Data.Maybe (isNothing, fromJust)
+import Data.Maybe (isNothing, fromJust, fromMaybe)
+import Data.List (isInfixOf)
 import Data.List.Split (splitOn)
 import Data.Char (toLower)
 
@@ -21,7 +22,7 @@ import Service.Types
 
 data AddressOption = AddressOption {
       _BuildingName :: Maybe String
-    , _BuildingNumber :: String
+    , _BuildingNumber :: Maybe String
     , _County :: Maybe String
     , _PostTown :: String
     , _Postalcode :: String
@@ -34,8 +35,6 @@ $(deriveJSON defaultOptions{ fieldLabelModifier = drop 1 } ''AddressOption)
 
 data AddressOptionResponse = AddressOptionResponse {
       addresses :: [AddressOption]
-    , house :: String
-    , postcode :: String
 } deriving (Show)
 
 $(deriveJSON defaultOptions ''AddressOptionResponse)
@@ -56,7 +55,7 @@ data BTInternetOption = BTInternetOption {
     , _minRangeSpeed :: Maybe String
     , _MinThreshold :: Maybe String
     , _speed :: Maybe String
-}
+} deriving (Show)
 
 $(deriveJSON defaultOptions{ fieldLabelModifier = drop 1 } ''BTInternetOption)
 
@@ -79,15 +78,15 @@ internetOptionsEndpoint = "https://www.productsandservices.bt.com/consumerProduc
 
 -- API
 
-getInternetOptionsForPostcode :: String -> String -> IO (Either String [InternetOption])
-getInternetOptionsForPostcode pc address = do
-    addressOptions <- getAddressOptionsForPostcode pc
-    case pickAddress pc address addressOptions of
+getInternetOptions :: Query -> IO (Either String [InternetOption])
+getInternetOptions query = do
+    addressOptions <- getAddressOptions (postcode query)
+    case pickAddress query addressOptions of
         Just address -> Right <$> getInternetOptionsForAddress address
         Nothing -> return $ Left "Could not find address"
 
-getAddressOptionsForPostcode :: String -> IO ([AddressOption])
-getAddressOptionsForPostcode pc = do
+getAddressOptions :: Postcode -> IO [AddressOption]
+getAddressOptions pc = do
     response <- asJSON =<< getWith opts addressOptionsEndpoint
     return $ addresses $ response ^. responseBody
         where opts = defaults & param "postcode" .~ [pack pc]
@@ -95,48 +94,57 @@ getAddressOptionsForPostcode pc = do
                               & param "house" .~ [""]
 
 
-getInternetOptionsForAddress :: AddressOption -> IO ([InternetOption])
+getInternetOptionsForAddress :: AddressOption -> IO [InternetOption]
 getInternetOptionsForAddress address = do
     response <- asJSON =<< getWith opts internetOptionsEndpoint
     let btOptions = serviceLineTypes (response ^. responseBody)
+    print $ show btOptions
     return $ toInternetOption <$> btOptions
         where opts = defaults & param "addressId" .~ [pack $ _addressId address]
                               & param "format" .~ ["json"]
 
 
-pickAddress :: String -> String -> [AddressOption] -> Maybe AddressOption
-pickAddress pc address addressOptions = headMay (filter applyFilters addressOptions)
+pickAddress :: Query -> [AddressOption] -> Maybe AddressOption
+pickAddress query addressOptions = headMay (filter applyFilters addressOptions)
     where
         applyFilters el = all (\fn -> fn el) [ filterPostcode
-                                             , filterSubBuildingName
+                                             , filterStreet
                                              , filterBuildingName
+                                             , filterSubBuildingName
                                              , filterBuildingNumber ]
 
         dropSpaces = filter (/= ' ')
+        notNull = not . null
 
-        -- Hard filter on matching postcode
-        filterPostcode x =
-            dropSpaces (_Postalcode x) == dropSpaces pc
+        -- Postcodes must always match
+        filterPostcode x = dropSpaces (_Postalcode x) == dropSpaces (postcode query)
 
-        -- Hard filter on sub building name if specified
+        -- Street names must 'match'
+        -- (allow for rudimentary searches by checking query *in* street name)
+        filterStreet x = (street query) `isInfixOf` (_ThoroughfareName x)
+
+        -- If a building name was provided...
+
+        -- Building name in query and in option must match
+        filterBuildingName x =
+            let qbn = (buildingName query) in
+                case (_BuildingName x) of
+                    Nothing -> True
+                    Just bn -> (bn == qbn) || (null qbn)
+
+        -- ...and number (assumed to be a flat number) must equal
+        -- SubBuildingName
         filterSubBuildingName x =
             case (_SubBuildingName x) of
                 Nothing -> True
-                Just sbn -> sbn == address
+                Just sbn -> (streetNumber query) `isInfixOf` sbn || null (buildingName query)
 
-        -- Hard filter on building name if specified and sub name not specified
-        filterBuildingName x =
-            case (_BuildingName x) of
-                Nothing -> True
-                Just bn -> bn == address || filterSubBuildingName x
-
-        -- Hard filter on building number if more specific value unspecified
+        -- Else, if no building name was provided
         filterBuildingNumber x =
-            if isNothing (_SubBuildingName x)
-                then if isNothing (_BuildingName x)
-                    then _BuildingNumber x == head (splitOn " " address)
-                else True
-            else True
+            case (_BuildingNumber x) of
+                Nothing -> True
+                Just bn -> ((streetNumber query) == bn) || notNull (buildingName query)
+
 
 toInternetOption :: BTInternetOption -> InternetOption
 toInternetOption opt =
@@ -156,8 +164,8 @@ toInternetOption opt =
         }
 
         dslOption o = InternetOption {
-              minDownSpeed = humanStringToBps $ fromJust $ _MinThreshold o
-            , maxDownSpeed = humanStringToBps $ fromJust $ _maxRangeSpeed o
+              minDownSpeed = humanStringToBps $ minThreshold o
+            , maxDownSpeed = humanStringToBps $ maxRangeSpeed o
             , estDownSpeed = humanStringToBps $ fromJust $ _speed o
             , minUpSpeed = 0
             , maxUpSpeed = 0
@@ -182,3 +190,6 @@ toInternetOption opt =
                     _ -> one
             in
                 round $ unit * (read num)
+
+        minThreshold o = fromMaybe (fromJust $ _speed o) (_MinThreshold o)
+        maxRangeSpeed o = fromMaybe (fromJust $ _speed o) (_maxRangeSpeed o)

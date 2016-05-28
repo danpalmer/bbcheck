@@ -31,6 +31,25 @@ data ServiceType = DSL | FTTC | FTTH
 
 instance ToJSON ServiceType
 
+-- Querying
+
+type StreetNumber = String
+type BuildingName = String
+type Street = String
+type Postcode = String
+
+data Query = Query {
+      postcode :: Postcode
+    , buildingName :: BuildingName
+    , street :: Street
+    , streetNumber :: StreetNumber
+} deriving (Eq, Show, Generic)
+
+instance FromJSON Query
+instance ToJSON Query
+
+-- Units
+
 kilo :: Double
 kilo = 1.0e3
 
