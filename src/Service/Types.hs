@@ -1,4 +1,9 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Service.Types where
+
+import Data.Aeson
+import GHC.Generics
 
 -- Core type for available internet options at an address
 --   Note: Speeds are in *bits per second*.
@@ -12,13 +17,19 @@ data InternetOption = InternetOption {
     , estUpSpeed :: Integer
     , provider :: Provider
     , serviceType :: ServiceType
-} deriving (Show, Eq)
+} deriving (Show, Eq, Generic)
+
+instance ToJSON InternetOption
 
 data Provider = OpenReach | VirginMedia | Hyperoptic
-    deriving (Show, Eq)
+    deriving (Show, Eq, Generic)
+
+instance ToJSON Provider
 
 data ServiceType = DSL | FTTC | FTTH
-    deriving (Show, Eq)
+    deriving (Show, Eq, Generic)
+
+instance ToJSON ServiceType
 
 kilo :: Double
 kilo = 1.0e3
