@@ -9,7 +9,6 @@ import GHC.Generics
 import Servant
 import Data.Aeson
 import Data.Either (rights)
-import qualified Data.Text as T
 import Control.Monad.IO.Class (liftIO)
 
 import Types (AppM)
@@ -47,9 +46,9 @@ serviceAPIHandler = lookupHandler
 lookupHandler :: Query -> AppM LookupResult
 lookupHandler query = do
     responses <- liftIO serviceResponses
-    let results = formatResults responses
-    let errors = formatErrors responses
-    return $ LookupResult {options = results, errors = errors}
+    let resultList = formatResults responses
+    let errorList = formatErrors responses
+    return $ LookupResult {options = resultList, errors = errorList}
         where
             serviceLookups :: [(Provider, Query -> IO (Either String [InternetOption]))]
             serviceLookups = [ (VirginMedia, VirginMediaUtils.getInternetOptions)

@@ -14,7 +14,6 @@ import Data.Maybe (mapMaybe)
 import qualified Data.Text.Lazy as L
 import Data.Text.Lazy.Encoding (decodeUtf8)
 import Data.List (isInfixOf)
-import Data.List.Lens
 import Text.Taggy
 import Text.Taggy.Lens
 import Data.Char (toLower)
@@ -28,7 +27,7 @@ import Service.Types
 
 data AddressOption = AddressOption {
       address :: String
-    , value :: String
+    , addressId :: String
 } deriving (Show)
 
 
@@ -66,29 +65,29 @@ getAddressOptionsForPostcode session pc = do
                           . allAttributed (ix "id" . only "addressIdentifier")
                           . allNamed (only "option")
                 in
-                    mapMaybe address elems
+                    mapMaybe mkAddress elems
 
-            address :: Element -> Maybe AddressOption
-            address elem = do
-                addressText <- elem ^? children . traverse . content
-                value <- join $ elem ^? element . attr "value"
+            mkAddress :: Element -> Maybe AddressOption
+            mkAddress e = do
+                addressText <- e ^? children . traverse . content
+                value <- join $ e ^? element . attr "value"
                 if (T.length value) > 0
                     then Just $ AddressOption (T.unpack addressText) (T.unpack value)
                     else Nothing
 
 
 getInternetOptionsForAddress :: Session.Session -> Postcode -> AddressOption -> IO [InternetOption]
-getInternetOptionsForAddress session pc address = do
-    response <- Session.post session internetOptionsEndpoint params
-    return $ options $ BS.unpack (response ^. responseBody)
+getInternetOptionsForAddress session pc addr = do
+    response <- Session.post session internetOptionsEndpoint reqParams
+    return $ mkOptions $ BS.unpack (response ^. responseBody)
         where
-            params = ["postcode" := pc, "addressIdentifier" := (value address)]
+            reqParams = ["postcode" := pc, "addressIdentifier" := (addressId addr)]
 
             speed :: [[String]] -> Integer
             speed = read . last . head
 
-            options :: String -> [InternetOption]
-            options body =
+            mkOptions :: String -> [InternetOption]
+            mkOptions body =
                 let
                     speedFragment = body =~ maxSpeedRegex :: [[String]]
                 in

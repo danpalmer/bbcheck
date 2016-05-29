@@ -2,7 +2,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Service.BT (
-      getInternetOptions
+      getInternetOptions,
+      pickAddress
 ) where
 
 import Safe (headMay)
@@ -10,9 +11,8 @@ import Network.Wreq
 import Control.Lens
 import Data.Text (pack)
 import Data.Aeson.TH
-import Data.Maybe (isNothing, fromJust, fromMaybe)
+import Data.Maybe (fromJust, fromMaybe)
 import Data.List (isInfixOf)
-import Data.List.Split (splitOn)
 import Data.Char (toLower)
 
 import Service.Types
@@ -29,13 +29,13 @@ data AddressOption = AddressOption {
     , _SubBuildingName :: Maybe String
     , _ThoroughfareName :: String
     , _addressId :: String
-} deriving (Show)
+} deriving (Show, Eq)
 
 $(deriveJSON defaultOptions{ fieldLabelModifier = drop 1 } ''AddressOption)
 
 data AddressOptionResponse = AddressOptionResponse {
       addresses :: [AddressOption]
-} deriving (Show)
+} deriving (Show, Eq)
 
 $(deriveJSON defaultOptions ''AddressOptionResponse)
 
