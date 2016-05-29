@@ -3,7 +3,8 @@
 
 module Service.BT (
       getInternetOptions,
-      pickAddress
+      pickAddress,
+      AddressOption(..)
 ) where
 
 import Safe (headMay)
@@ -130,7 +131,7 @@ pickAddress query addressOptions = headMay (filter applyFilters addressOptions)
             let qbn = (buildingName query) in
                 case (_BuildingName x) of
                     Nothing -> True
-                    Just bn -> (bn == qbn) || (null qbn)
+                    Just bn -> (qbn `isInfixOf` bn) || (null qbn)
 
         -- ...and number (assumed to be a flat number) must equal
         -- SubBuildingName
@@ -139,7 +140,7 @@ pickAddress query addressOptions = headMay (filter applyFilters addressOptions)
                 Nothing -> True
                 Just sbn -> (streetNumber query) `isInfixOf` sbn || null (buildingName query)
 
-        -- Else, if no building name was provided
+        -- Else, if no building name was provided the number must match
         filterBuildingNumber x =
             case (_BuildingNumber x) of
                 Nothing -> True
