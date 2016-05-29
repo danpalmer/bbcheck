@@ -58,6 +58,7 @@ test-suite bbcheck-test
   build-depends:       base
                      , hspec
                      , QuickCheck
+                     , derive
                      -- main executable dependencies
                      , text
                      , bytestring

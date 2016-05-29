@@ -1,7 +1,12 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Service.BTSpec (spec) where
 
 import Test.Hspec
 import Test.QuickCheck
+import Data.Aeson (decode)
+import Data.Maybe (fromJust)
+import Data.DeriveTH
+import qualified Data.ByteString.Lazy as LBS
 
 import Service.Types
 
@@ -45,10 +50,14 @@ addressOptionName = AddressOption {
 }
 
 
+derive makeArbitrary ''Query
+derive makeArbitrary ''AddressOption
+
+
 spec :: Spec
-spec = do
+spec =
     describe "pickAddress" $ do
-        it "should return Nothing when no options" $ do
+        it "should return Nothing when no options" $
             (pickAddress queryNumber []) `shouldBe` Nothing
 
         it "should return Just an option with valid inputs" $ do
@@ -71,6 +80,10 @@ spec = do
             let q = queryNumber {streetNumber = "NOT A MATCH"}
             (pickAddress q [addressOptionNumber]) `shouldBe` Nothing
 
+        it "should return Nothing if no building name and the number doesn't exactly match" $ do
+            let q = queryNumber {streetNumber = "10"}
+            (pickAddress q [addressOptionNumber]) `shouldBe` Nothing
+
         it "should return Nothing if flat name does not match" $ do
             let q = queryName {streetNumber = "Flat 2"}
             (pickAddress q [addressOptionName]) `shouldBe` Nothing
@@ -86,3 +99,16 @@ spec = do
         it "should return Just an option if partial building name match" $ do
             let q = queryName {buildingName = "Foobar"}
             (pickAddress q [addressOptionName]) `shouldBe` (Just addressOptionName)
+
+        it "should pick the correct address from Data1.json" $ do
+            let q = Query "SW2 1DX" "" "Kellett Road" "1"
+            contents <- LBS.readFile "test/Service/BTSpecData1.json"
+            let o = fromJust (decode contents) :: [AddressOption]
+            (_addressId <$> (pickAddress q o)) `shouldBe` (Just "Gold|A00023971915|WR|1")
+
+        it "should not match options with no street number (pay & display meters)" $ do
+            let o = addressOptionNumber {_BuildingNumber = Nothing}
+            (pickAddress queryNumber [o]) `shouldBe` Nothing
+
+        it "should pass quickcheck" $ property $
+            \(x, y) -> (pickAddress x y) `shouldBe` Nothing

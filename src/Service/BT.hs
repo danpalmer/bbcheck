@@ -143,7 +143,7 @@ pickAddress query addressOptions = headMay (filter applyFilters addressOptions)
         -- Else, if no building name was provided the number must match
         filterBuildingNumber x =
             case (_BuildingNumber x) of
-                Nothing -> True
+                Nothing -> False
                 Just bn -> ((streetNumber query) == bn) || notNull (buildingName query)
 
 
