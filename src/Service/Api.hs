@@ -1,23 +1,23 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeOperators     #-}
 
 module Service.Api where
 
-import Control.Monad
-import GHC.Generics
-import Servant
-import Data.Aeson
-import Data.Either (rights)
-import Control.Monad.IO.Class (liftIO)
+import           Control.Monad
+import           Control.Monad.IO.Class (liftIO)
+import           Data.Aeson
+import           Data.Either            (rights)
+import           GHC.Generics
+import           Servant
 
-import Types (AppM)
+import           Types                  (AppM)
 
-import qualified Service.BT as BTUtils
-import qualified Service.VirginMedia as VirginMediaUtils
+import qualified Service.BT             as BTUtils
+import qualified Service.VirginMedia    as VirginMediaUtils
 
-import Service.Types
+import           Service.Types
 
 --- API
 
@@ -27,14 +27,14 @@ type ServiceAPI = "lookup" :> ReqBody '[JSON] Query :> Post '[JSON] LookupResult
 
 data LookupError = LookupError {
       provider :: Provider
-    , message :: String
+    , message  :: String
 } deriving (Generic)
 
 instance ToJSON LookupError
 
 data LookupResult = LookupResult {
       options :: [InternetOption]
-    , errors :: [LookupError]
+    , errors  :: [LookupError]
 } deriving (Generic)
 
 instance ToJSON LookupResult

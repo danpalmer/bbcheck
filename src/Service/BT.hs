@@ -1,5 +1,5 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
 
 module Service.BT (
       getInternetOptions,
@@ -7,29 +7,29 @@ module Service.BT (
       AddressOption(..)
 ) where
 
-import Safe (headMay)
-import Network.Wreq
-import Control.Lens
-import Data.Text (pack)
-import Data.Aeson.TH
-import Data.Maybe (fromJust, fromMaybe)
-import Data.List (isInfixOf)
-import Data.Char (toLower)
+import           Control.Lens
+import           Data.Aeson.TH
+import           Data.Char     (toLower)
+import           Data.List     (isInfixOf)
+import           Data.Maybe    (fromJust, fromMaybe)
+import           Data.Text     (pack)
+import           Network.Wreq
+import           Safe          (headMay)
 
-import Service.Types
+import           Service.Types
 
 
 -- Internal Types
 
 data AddressOption = AddressOption {
-      _BuildingName :: Maybe String
-    , _BuildingNumber :: Maybe String
-    , _County :: Maybe String
-    , _PostTown :: String
-    , _Postalcode :: String
-    , _SubBuildingName :: Maybe String
+      _BuildingName     :: Maybe String
+    , _BuildingNumber   :: Maybe String
+    , _County           :: Maybe String
+    , _PostTown         :: String
+    , _Postalcode       :: String
+    , _SubBuildingName  :: Maybe String
     , _ThoroughfareName :: String
-    , _addressId :: String
+    , _addressId        :: String
 } deriving (Show, Eq)
 
 $(deriveJSON defaultOptions{ fieldLabelModifier = drop 1 } ''AddressOption)
@@ -41,21 +41,21 @@ data AddressOptionResponse = AddressOptionResponse {
 $(deriveJSON defaultOptions ''AddressOptionResponse)
 
 data BTInternetOption = BTInternetOption {
-      _infinity :: Bool
-    , _exchangeState :: String
-    , _readyDate :: String
-    , _AvailabilityFlag :: Maybe String
+      _infinity               :: Bool
+    , _exchangeState          :: String
+    , _readyDate              :: String
+    , _AvailabilityFlag       :: Maybe String
 
     , _CLEAN_BOTTOM_DOWNSPEED :: Maybe String
-    , _CLEAN_BOTTOM_UPSPEED :: Maybe String
-    , _CLEAN_MIN_DOWNSPEED :: Maybe String
-    , _CLEAN_TOP_DOWNSPEED :: Maybe String
-    , _CLEAN_TOP_UPSPEED :: Maybe String
+    , _CLEAN_BOTTOM_UPSPEED   :: Maybe String
+    , _CLEAN_MIN_DOWNSPEED    :: Maybe String
+    , _CLEAN_TOP_DOWNSPEED    :: Maybe String
+    , _CLEAN_TOP_UPSPEED      :: Maybe String
 
-    , _maxRangeSpeed :: Maybe String
-    , _minRangeSpeed :: Maybe String
-    , _MinThreshold :: Maybe String
-    , _speed :: Maybe String
+    , _maxRangeSpeed          :: Maybe String
+    , _minRangeSpeed          :: Maybe String
+    , _MinThreshold           :: Maybe String
+    , _speed                  :: Maybe String
 } deriving (Show)
 
 $(deriveJSON defaultOptions{ fieldLabelModifier = drop 1 } ''BTInternetOption)

@@ -1,8 +1,8 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE TypeOperators         #-}
 
 module Server (
       siteServer
@@ -12,16 +12,17 @@ module Server (
     , AppM
 ) where
 
-import Servant
-import Network.Wai                          (Application, Middleware)
-import Network.Wai.Middleware.RequestLogger (logStdoutDev, logStdout)
-import Control.Monad.Reader           (runReaderT)
-import Control.Monad.Except           (ExceptT)
-import Data.Configurator
-import Data.Configurator.Types (Config)
+import           Control.Monad.Except                 (ExceptT)
+import           Control.Monad.Reader                 (runReaderT)
+import           Data.Configurator
+import           Data.Configurator.Types              (Config)
+import           Network.Wai                          (Application, Middleware)
+import           Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
+import           Servant
 
-import Types (SiteContext(..), AppM)
-import Service.Api (ServiceAPI, serviceAPIHandler)
+import           Service.Api                          (ServiceAPI,
+                                                       serviceAPIHandler)
+import           Types                                (AppM, SiteContext (..))
 
 ---
 

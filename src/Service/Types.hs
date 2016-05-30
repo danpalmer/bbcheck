@@ -2,8 +2,8 @@
 
 module Service.Types where
 
-import Data.Aeson
-import GHC.Generics
+import           Data.Aeson
+import           GHC.Generics
 
 -- Core type for available internet options at an address
 --   Note: Speeds are in *bits per second*.
@@ -12,11 +12,11 @@ data InternetOption = InternetOption {
       minDownSpeed :: Integer
     , maxDownSpeed :: Integer
     , estDownSpeed :: Integer
-    , minUpSpeed :: Integer
-    , maxUpSpeed :: Integer
-    , estUpSpeed :: Integer
-    , provider :: Provider
-    , serviceType :: ServiceType
+    , minUpSpeed   :: Integer
+    , maxUpSpeed   :: Integer
+    , estUpSpeed   :: Integer
+    , provider     :: Provider
+    , serviceType  :: ServiceType
 } deriving (Show, Eq, Generic)
 
 instance ToJSON InternetOption
@@ -39,9 +39,9 @@ type Street = String
 type Postcode = String
 
 data Query = Query {
-      postcode :: Postcode
+      postcode     :: Postcode
     , buildingName :: BuildingName
-    , street :: Street
+    , street       :: Street
     , streetNumber :: StreetNumber
 } deriving (Eq, Show, Generic)
 

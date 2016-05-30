@@ -2,14 +2,15 @@
 
 module Main where
 
-import System.Exit (exitFailure)
-import System.Environment (lookupEnv)
-import Network.Wai.Handler.Warp    (run)
-import Network.Wai.Middleware.Cors (simpleCors)
-import Data.Configurator (load, require)
-import Data.Configurator.Types (Config, Worth(Required))
+import           Data.Configurator           (load, require)
+import           Data.Configurator.Types     (Config, Worth (Required))
+import           Network.Wai.Handler.Warp    (run)
+import           Network.Wai.Middleware.Cors (simpleCors)
+import           System.Environment          (lookupEnv)
+import           System.Exit                 (exitFailure)
 
-import Server (contextForConfig, makeLogger, siteServer)
+import           Server                      (contextForConfig, makeLogger,
+                                              siteServer)
 
 main :: IO ()
 main = do
