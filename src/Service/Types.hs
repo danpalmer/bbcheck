@@ -8,8 +8,8 @@ import           GHC.Generics
 -- Core type for available internet options at an address
 --   Note: Speeds are in *bits per second*.
 
-data InternetOption = InternetOption {
-      minDownSpeed :: Integer
+data InternetOption = InternetOption
+    { minDownSpeed :: Integer
     , maxDownSpeed :: Integer
     , estDownSpeed :: Integer
     , minUpSpeed   :: Integer
@@ -17,16 +17,22 @@ data InternetOption = InternetOption {
     , estUpSpeed   :: Integer
     , provider     :: Provider
     , serviceType  :: ServiceType
-} deriving (Show, Eq, Generic)
+    } deriving (Show, Eq, Generic)
 
 instance ToJSON InternetOption
 
-data Provider = OpenReach | VirginMedia | Hyperoptic
+data Provider =
+      OpenReach
+    | VirginMedia
+    | Hyperoptic
     deriving (Show, Eq, Generic)
 
 instance ToJSON Provider
 
-data ServiceType = DSL | FTTC | FTTH
+data ServiceType =
+      DSL
+    | FTTC
+    | FTTH
     deriving (Show, Eq, Generic)
 
 instance ToJSON ServiceType
@@ -38,12 +44,12 @@ type BuildingName = String
 type Street = String
 type Postcode = String
 
-data Query = Query {
-      postcode     :: Postcode
+data Query = Query
+    { postcode     :: Postcode
     , buildingName :: BuildingName
     , street       :: Street
     , streetNumber :: StreetNumber
-} deriving (Eq, Show, Generic)
+    } deriving (Eq, Show, Generic)
 
 instance FromJSON Query
 instance ToJSON Query

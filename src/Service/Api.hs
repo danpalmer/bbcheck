@@ -25,17 +25,17 @@ type ServiceAPI = "lookup" :> ReqBody '[JSON] Query :> Post '[JSON] LookupResult
 
 --- Model
 
-data LookupError = LookupError {
-      provider :: Provider
+data LookupError = LookupError
+    { provider :: Provider
     , message  :: String
-} deriving (Generic)
+    } deriving (Generic)
 
 instance ToJSON LookupError
 
-data LookupResult = LookupResult {
-      options :: [InternetOption]
+data LookupResult = LookupResult
+    { options :: [InternetOption]
     , errors  :: [LookupError]
-} deriving (Generic)
+    } deriving (Generic)
 
 instance ToJSON LookupResult
 

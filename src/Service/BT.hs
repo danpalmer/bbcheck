@@ -21,8 +21,8 @@ import           Service.Types
 
 -- Internal Types
 
-data AddressOption = AddressOption {
-      _BuildingName     :: Maybe String
+data AddressOption = AddressOption
+    { _BuildingName     :: Maybe String
     , _BuildingNumber   :: Maybe String
     , _County           :: Maybe String
     , _PostTown         :: String
@@ -30,18 +30,18 @@ data AddressOption = AddressOption {
     , _SubBuildingName  :: Maybe String
     , _ThoroughfareName :: String
     , _addressId        :: String
-} deriving (Show, Eq)
+    } deriving (Show, Eq)
 
 $(deriveJSON defaultOptions{ fieldLabelModifier = drop 1 } ''AddressOption)
 
-data AddressOptionResponse = AddressOptionResponse {
-      addresses :: [AddressOption]
-} deriving (Show, Eq)
+data AddressOptionResponse = AddressOptionResponse
+    { addresses :: [AddressOption]
+    } deriving (Show, Eq)
 
 $(deriveJSON defaultOptions ''AddressOptionResponse)
 
-data BTInternetOption = BTInternetOption {
-      _infinity               :: Bool
+data BTInternetOption = BTInternetOption
+    { _infinity               :: Bool
     , _exchangeState          :: String
     , _readyDate              :: String
     , _AvailabilityFlag       :: Maybe String
@@ -56,14 +56,14 @@ data BTInternetOption = BTInternetOption {
     , _minRangeSpeed          :: Maybe String
     , _MinThreshold           :: Maybe String
     , _speed                  :: Maybe String
-} deriving (Show)
+    } deriving (Show)
 
 $(deriveJSON defaultOptions{ fieldLabelModifier = drop 1 } ''BTInternetOption)
 
-data BTInternetOptionsResponse = BTInternetOptionsResponse {
-      serviceLineTypes :: [BTInternetOption]
+data BTInternetOptionsResponse = BTInternetOptionsResponse
+    { serviceLineTypes :: [BTInternetOption]
       --exchangeName :: String
-}
+    }
 
 $(deriveJSON defaultOptions ''BTInternetOptionsResponse)
 

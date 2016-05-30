@@ -25,10 +25,10 @@ import           Service.Types
 
 -- Internal Types
 
-data AddressOption = AddressOption {
-      address   :: String
+data AddressOption = AddressOption
+    { address   :: String
     , addressId :: String
-} deriving (Show)
+    } deriving (Show)
 
 
 -- Constants
