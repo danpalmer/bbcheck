@@ -8,7 +8,6 @@ import Network.Wai.Handler.Warp    (run)
 import Network.Wai.Middleware.Cors (simpleCors)
 import Data.Configurator (load, require)
 import Data.Configurator.Types (Config, Worth(Required))
-import Control.Monad (liftM)
 
 import Server (contextForConfig, makeLogger, siteServer)
 
@@ -18,16 +17,14 @@ main = do
     ctx <- contextForConfig config
     logger <- makeLogger config
     writeStartupLog config
-    port <- liftM read $ require config "port"
+    port <- read <$> require config "port"
     run port $ logger $ simpleCors $ siteServer ctx
 
-getConfig :: IO (Config)
+getConfig :: IO Config
 getConfig = do
     configFile <- lookupEnv "CONFIG_FILE"
     case configFile of
-        Just path -> do
-            config <- load [Required path]
-            return config
+        Just path -> load [Required path]
         Nothing -> do
             putStrLn "$CONFIG_FILE not defined."
             exitFailure
