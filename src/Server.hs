@@ -13,8 +13,7 @@ module Server (
 ) where
 
 import Servant
-import Network.Wai                    (Application)
-import Network.Wai                          (Middleware)
+import Network.Wai                          (Application, Middleware)
 import Network.Wai.Middleware.RequestLogger (logStdoutDev, logStdout)
 import Control.Monad.Reader           (runReaderT)
 import Control.Monad.Except           (ExceptT)
@@ -59,6 +58,5 @@ makeLogger cfg = do
     else
         return id
 
-contextForConfig :: Config -> IO (SiteContext)
-contextForConfig cfg = do
-    return SiteContext {config = cfg}
+contextForConfig :: Config -> IO SiteContext
+contextForConfig cfg = return SiteContext {config = cfg}

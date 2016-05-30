@@ -4,29 +4,29 @@ module Service.VirginMedia (
       getInternetOptions
 ) where
 
-import Safe (headMay)
-import Network.Wreq
-import qualified Network.Wreq.Session as Session
-import qualified Data.Text as T
-import Control.Lens hiding (children, element, elements)
-import Control.Monad (join)
-import Data.Maybe (mapMaybe)
-import qualified Data.Text.Lazy as L
-import Data.Text.Lazy.Encoding (decodeUtf8)
-import Data.List (isInfixOf)
-import Text.Taggy
-import Text.Taggy.Lens
-import Data.Char (toLower)
-import Text.Regex.Posix
+import           Control.Lens               hiding (children, element, elements)
+import           Control.Monad              (join)
 import qualified Data.ByteString.Lazy.Char8 as BS
+import           Data.Char                  (toLower)
+import           Data.List                  (isInfixOf)
+import           Data.Maybe                 (mapMaybe)
+import qualified Data.Text                  as T
+import qualified Data.Text.Lazy             as L
+import           Data.Text.Lazy.Encoding    (decodeUtf8)
+import           Network.Wreq
+import qualified Network.Wreq.Session       as Session
+import           Safe                       (headMay)
+import           Text.Regex.Posix
+import           Text.Taggy
+import           Text.Taggy.Lens
 
-import Service.Types
+import           Service.Types
 
 
 -- Internal Types
 
 data AddressOption = AddressOption {
-      address :: String
+      address   :: String
     , addressId :: String
 } deriving (Show)
 

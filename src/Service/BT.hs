@@ -121,36 +121,36 @@ pickAddress query addressOptions = headMay (filter applyFilters addressOptions)
 
         -- Street names must 'match'
         -- (allow for rudimentary searches by checking query *in* street name)
-        filterStreet x = (street query) `isInfixOf` (_ThoroughfareName x)
+        filterStreet x = street query `isInfixOf` _ThoroughfareName x
 
         -- If a building name was provided...
 
         -- Building name in query and in option must match
         filterBuildingName x =
-            let qbn = (buildingName query) in
-                case (_BuildingName x) of
+            let qbn = buildingName query in
+                case _BuildingName x of
                     Nothing -> True
-                    Just bn -> (qbn `isInfixOf` bn) || (null qbn)
+                    Just bn -> qbn `isInfixOf` bn || null qbn
 
         -- ...and number (assumed to be a flat number) must equal
         -- SubBuildingName
         filterSubBuildingName x =
-            case (_SubBuildingName x) of
+            case _SubBuildingName x of
                 Nothing -> True
-                Just sbn -> (streetNumber query) `isInfixOf` sbn || null (buildingName query)
+                Just sbn -> streetNumber query `isInfixOf` sbn || null (buildingName query)
 
         -- Else, if no building name was provided the number must match
         filterBuildingNumber x =
-            case (_BuildingNumber x) of
+            case _BuildingNumber x of
                 Nothing -> False
-                Just bn -> ((streetNumber query) == bn) || notNull (buildingName query)
+                Just bn -> streetNumber query == bn || notNull (buildingName query)
 
 
 toInternetOption :: BTInternetOption -> InternetOption
 toInternetOption opt =
-    case _infinity opt of
-        True -> infinityOption opt
-        False -> dslOption opt
+    if _infinity opt
+        then infinityOption opt
+        else dslOption opt
     where
         infinityOption o = InternetOption {
               minDownSpeed = strKbpsToBps $ fromJust $ _CLEAN_MIN_DOWNSPEED o
@@ -183,13 +183,13 @@ toInternetOption opt =
         humanStringToBps s =
             let
                 num = init s
-                unit = case (toLower $ last s) of
+                unit = case toLower $ last s of
                     'k' -> kilo
                     'm' -> mega
                     'g' -> giga
                     _ -> one
             in
-                round $ unit * (read num)
+                round $ unit * read num
 
         minThreshold o = fromMaybe (fromJust $ _speed o) (_MinThreshold o)
         maxRangeSpeed o = fromMaybe (fromJust $ _speed o) (_maxRangeSpeed o)

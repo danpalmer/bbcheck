@@ -5,6 +5,7 @@
 
 module Service.Api where
 
+import Control.Monad
 import GHC.Generics
 import Servant
 import Data.Aeson
@@ -48,7 +49,7 @@ lookupHandler query = do
     responses <- liftIO serviceResponses
     let resultList = formatResults responses
     let errorList = formatErrors responses
-    return $ LookupResult {options = resultList, errors = errorList}
+    return LookupResult {options = resultList, errors = errorList}
         where
             serviceLookups :: [(Provider, Query -> IO (Either String [InternetOption]))]
             serviceLookups = [ (VirginMedia, VirginMediaUtils.getInternetOptions)
@@ -56,7 +57,7 @@ lookupHandler query = do
                              ]
 
             serviceResponses :: IO [(Provider, Either String [InternetOption])]
-            serviceResponses = flip mapM serviceLookups $ \(p, fn) -> do
+            serviceResponses = forM serviceLookups $ \(p, fn) -> do
                 optionOrError <- fn query
                 return (p, optionOrError)
 
@@ -64,4 +65,4 @@ lookupHandler query = do
             formatErrors responses = [LookupError p e | (p, Left e) <- responses]
 
             formatResults :: [(Provider, Either String [InternetOption])] -> [InternetOption]
-            formatResults = concat . rights . (map snd)
+            formatResults = concat . rights . map snd
