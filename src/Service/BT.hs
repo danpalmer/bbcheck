@@ -99,7 +99,6 @@ getInternetOptionsForAddress :: AddressOption -> IO [InternetOption]
 getInternetOptionsForAddress address = do
     response <- asJSON =<< getWith opts internetOptionsEndpoint
     let btOptions = serviceLineTypes (response ^. responseBody)
-    print $ show btOptions
     return $ toInternetOption <$> btOptions
         where opts = defaults & param "addressId" .~ [pack $ _addressId address]
                               & param "format" .~ ["json"]
