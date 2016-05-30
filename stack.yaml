@@ -1,8 +1,6 @@
 flags: {}
 packages:
 - '.'
-docker:
-  enable: false
 extra-deps:
 - servant-0.7.1
 - servant-server-0.7.1
