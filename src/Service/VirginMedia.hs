@@ -60,14 +60,14 @@ getAddressOptionsForPostcode :: Session.Session -> Postcode -> IO (Either String
 getAddressOptionsForPostcode session pc = do
     response <- Session.post session addressOptionsEndpoint ["postcode" := pc]
     let body = decodeUtf8 $ response ^. responseBody
-    if (isVMArea body) then
+    if isVMArea body then
         return $ Right $ addresses body
     else
         return $ Left "Not available in this area."
         where
             isVMArea :: L.Text -> Bool
             isVMArea body =
-                not $ "cable my street" `L.isInfixOf` (L.toLower body)
+                not $ "cable my street" `L.isInfixOf` L.toLower body
 
             addresses :: L.Text -> [AddressOption]
             addresses body =
@@ -82,7 +82,7 @@ getAddressOptionsForPostcode session pc = do
             mkAddress e = do
                 addressText <- e ^? children . traverse . content
                 value <- join $ e ^? element . attr "value"
-                if (T.length value) > 0
+                if T.length value > 0
                     then Just $ AddressOption (T.unpack addressText) (T.unpack value)
                     else Nothing
 
@@ -92,7 +92,7 @@ getInternetOptionsForAddress session pc addr = do
     response <- Session.post session internetOptionsEndpoint reqParams
     return $ mkOptions $ BS.unpack (response ^. responseBody)
         where
-            reqParams = ["postcode" := pc, "addressIdentifier" := (addressId addr)]
+            reqParams = ["postcode" := pc, "addressIdentifier" := addressId addr]
 
             speed :: [[String]] -> Integer
             speed = read . last . head
@@ -118,22 +118,22 @@ pickAddress query addressOptions = headMay (filter applyFilters addressOptions)
         lowercase = map toLower
 
         -- Postcodes must always be present
-        filterPostcode x = (dropSpaces (postcode query)) `isInfixOf` (dropSpaces x)
+        filterPostcode x = dropSpaces (postcode query) `isInfixOf` dropSpaces x
 
         -- Street names must 'match'
         -- (allow for rudimentary searches by checking query *in* street name)
-        filterStreet x = (lowercase (street query)) `isInfixOf` (lowercase x)
+        filterStreet x = lowercase (street query) `isInfixOf` lowercase x
 
         -- If a building name was provided...
 
         -- Building name in query and in option must match
         filterBuildingName x =
-            (lowercase (buildingName query)) `isInfixOf` (lowercase x)
+            lowercase (buildingName query) `isInfixOf` lowercase x
 
         -- ...and number (assumed to be a flat number) must equal
         -- SubBuildingName
         filterSubBuildingName x =
-            (lowercase (streetNumber query)) `isInfixOf` (lowercase x)
+            lowercase (streetNumber query) `isInfixOf` lowercase x
 
 virginMediaOptionFromSpeed :: Integer -> InternetOption
 virginMediaOptionFromSpeed speed =
@@ -151,5 +151,5 @@ virginMediaOptionFromSpeed speed =
             , serviceType = FTTC
         }
     where
-        uploadSpeed x = round $ (fromIntegral x) * 0.05 * mega
-        downloadSpeed x = round $ (fromIntegral x) * mega
+        uploadSpeed x = round $ fromIntegral x * 0.05 * mega
+        downloadSpeed x = round $ fromIntegral x * mega
