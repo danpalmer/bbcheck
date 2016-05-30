@@ -47,17 +47,28 @@ maxSpeedRegex = "var maxSpeed = '([0-9]+)';"
 
 getInternetOptions :: Query -> IO (Either String [InternetOption])
 getInternetOptions query = Session.withSession $ \session -> do
-    addressOptions <- getAddressOptionsForPostcode session (postcode query)
-    case pickAddress query addressOptions of
-        Just addressOption -> Right <$> getInternetOptionsForAddress session (postcode query) addressOption
-        Nothing -> return $ Left "Could not find address"
+    optionsOrError <- getAddressOptionsForPostcode session (postcode query)
+    case optionsOrError of
+        Left err ->
+            return $ Left err
+        Right addressOptions ->
+            case pickAddress query addressOptions of
+                Just addressOption -> Right <$> getInternetOptionsForAddress session (postcode query) addressOption
+                Nothing -> return $ Left "Could not find address"
 
-getAddressOptionsForPostcode :: Session.Session -> Postcode -> IO [AddressOption]
+getAddressOptionsForPostcode :: Session.Session -> Postcode -> IO (Either String [AddressOption])
 getAddressOptionsForPostcode session pc = do
     response <- Session.post session addressOptionsEndpoint ["postcode" := pc]
     let body = decodeUtf8 $ response ^. responseBody
-    return $ addresses body
+    if (isVMArea body) then
+        return $ Right $ addresses body
+    else
+        return $ Left "Not available in this area."
         where
+            isVMArea :: L.Text -> Bool
+            isVMArea body =
+                not $ "cable my street" `L.isInfixOf` (L.toLower body)
+
             addresses :: L.Text -> [AddressOption]
             addresses body =
                 let
