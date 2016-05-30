@@ -1,0 +1,10 @@
+#!/bin/bash
+set -x
+PROD_BUILD_OPTS="--arch=x86_64 --os=linux --jobs=4 --local-bin-path=.dist"
+
+mkdir -p .dist
+
+stack update
+stack build ${PROD_BUILD_OPTS} --test --copy-bins
+
+docker build -t danpalmer/bbcheck:latest .
