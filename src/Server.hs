@@ -59,5 +59,5 @@ makeLogger cfg = do
     else
         return id
 
-contextForConfig :: Config -> IO SiteContext
-contextForConfig cfg = return SiteContext {config = cfg}
+contextForConfig :: Config -> SiteContext
+contextForConfig cfg = SiteContext {config = cfg}

@@ -15,7 +15,7 @@ import           Server                      (contextForConfig, makeLogger,
 main :: IO ()
 main = do
     config <- getConfig
-    ctx <- contextForConfig config
+    let ctx = contextForConfig config
     logger <- makeLogger config
     writeStartupLog config
     port <- read <$> require config "port"
