@@ -1,0 +1,10 @@
+FROM phusion/baseimage:0.9.15
+
+RUN apt-get update && apt-get install -y libgmp3-dev && apt-get clean
+
+ADD .dist/bbcheck bbcheck
+ADD service.prod.cfg service.cfg
+
+ENV PORT 3000
+
+CMD CONFIG_FILE=service.cfg /bbcheck

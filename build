@@ -1,10 +1,18 @@
 #!/bin/bash
-set -x
-PROD_BUILD_OPTS="--arch=x86_64 --os=linux --jobs=4 --local-bin-path=.dist"
 
-mkdir -p .dist
+# First build an image in which we can build our binary
+docker build -t bbcheck:build -f docker/Dockerfile-build docker
 
-stack update
-stack build ${PROD_BUILD_OPTS} --test --copy-bins
+# Then compile our binary in the Haskell docker image
+docker run -i --volume=`pwd`:/src --volume=$HOME/.stack:/root/.stack bbcheck:build /bin/bash <<-EOF
 
-docker build -t danpalmer/bbcheck:latest .
+    set -x
+    cd /src
+
+    mkdir -p .dist
+    stack build --jobs=4 --local-bin-path=.dist --test --copy-bins
+
+EOF
+
+# Then build a new image that contains only our binary.
+docker build -t danpalmer/bbcheck:latest -f docker/Dockerfile-run .

@@ -1,0 +1,5 @@
+FROM haskell:7.10
+
+VOLUME /src
+
+RUN apt-get update && apt-get -y install libcurl4-gnutls-dev && apt-get clean
