@@ -12,10 +12,9 @@ script:
 after_success:
 - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
 - export REPO=danpalmer/bbcheck
-- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; fi`
-- docker tag $REPO:$COMMIT $REPO:$TAG
-- docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
-- docker push $REPO
+- docker tag $REPO $REPO:$TRAVIS_BRANCH
+- docker tag $REPO $REPO:$COMMIT
+- if [ "$TRAVIS_BRANCH" == "master" ]; then docker push $REPO; fi
 env:
   global:
   - secure: 3HvQKSwRg/2z8anTAFSXiYIlxNxLOlSZREDvRFOJFqeYEM8LBWKNUv+EdjdOiJBFQlq2SL4Gl71yaZ2mR1po1A7NoHmzuHEPpXebTRbYBX8YvtUQFbh83glszzLPpiQyczOz+eav6ai/bejihfQ09Ox2WUziLfQixWfsiLuZNww0tz3cb1qsLTVCQ5OuF6KrpfeJxGiZyqRrU78/HDsqIbo+5lRXGvRiKADCuFbFDwmRkTAWFIny595e4yEGDZcn+ZTZKTBiP5/qn+xe4WSOP6TT/M5g4J56A44ikhTg528++w9y4rh+L6Nku/2Ujm9oAnSX4yyhJvMLSmmasW+Lns75eL41wexO7K9qlu2SrjngBsPuVgdYhNMqKbP5GAAubheHyRu0hCnCQRTWsBu38J3SETjn5z66t4wnqgJhtu7RkECKbGtuaq4OLcopBJMnlAIeiRLXfMsvQ1Z93QJVbm9oKqVAj36h1wmTHD4SEBY1RexPr2WQjZNxyj7/TLzJt32wtgtDfmQb5OHh9a6qRd8nBlSHjAQtool97O8GHhgLKE/CLZB/FNwIUcinUg/YJPVMFmSUt0aCA8T6rzOzEpRozwsK7x9G+wFC1vp9NvfguiCHIB7jMJoBMA+WDFZWjRFIuVhFbhuRG9VFDM+lLDy6D/HlRidPwlLu9XDENA8=
