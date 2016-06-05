@@ -10,7 +10,7 @@ docker run -i --volume=`pwd`:/src --volume=$HOME/.stack:/root/.stack bbcheck:bui
     cd /src
 
     mkdir -p .dist
-    stack build --jobs=4 --local-bin-path=.dist --test --copy-bins
+    stack build --allow-different-user --jobs=4 --local-bin-path=.dist --test --copy-bins
 
 EOF
 
