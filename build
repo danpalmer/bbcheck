@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # First build an image in which we can build our binary
 docker build -t bbcheck:build -f docker/Dockerfile-build docker
 
