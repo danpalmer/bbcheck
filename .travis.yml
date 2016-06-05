@@ -1,8 +1,6 @@
 sudo: required
 services:
 - docker
-language: haskell
-ghc: 7.1
 cache:
   directories:
   - $HOME/.stack
