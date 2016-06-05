@@ -13,7 +13,6 @@ after_success:
 - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
 - export REPO=danpalmer/bbcheck
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; fi`
-- docker build -f Dockerfile -t $REPO:$COMMIT .
 - docker tag $REPO:$COMMIT $REPO:$TAG
 - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
 - docker push $REPO
